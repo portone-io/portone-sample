@@ -1,0 +1,24 @@
+{
+  "name": "express-html",
+  "private": true,
+  "version": "0.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node -r dotenv-flow/config server/index.js",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@portone/server-sdk": "0.2.0-alpha.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.4",
+    "@types/react-dom": "^18.3.0",
+    "dotenv-flow": "^4.1.0",
+    "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
