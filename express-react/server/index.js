@@ -2,8 +2,60 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const PortOne = require("@portone/server-sdk")
 
-const app = express()
 const portOne = PortOne.PortOneApi(process.env.V2_API_SECRET)
+
+// 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
+// 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
+function verifyPayment(payment) {
+  const customData = JSON.parse(payment.customData)
+  const item = items.get(customData.item)
+  if (item == null) return false
+  const paymentItem = {
+    name: payment.orderName,
+    price: payment.amount.total,
+    currency: payment.currency,
+  }
+  for (const [key, value] of Object.entries(paymentItem))
+    if (item[key] !== value) return false
+  return true
+}
+
+// 서버의 결제 데이터베이스를 따라하는 샘플입니다.
+// syncPayment 호출시에 포트원의 결제 건을 조회하여 상태를 동기화하고 결제 완료시에 완료 처리를 합니다.
+// 브라우저의 결제 완료 호출과 포트원의 웹훅 호출 두 경우에 모두 상태 동기화가 필요합니다.
+// 실제 데이터베이스 사용시에는 결제건 단위 락을 잡아 동시성 문제를 피하도록 합니다.
+const paymentStore = new Map()
+async function syncPayment(paymentId) {
+  if (!paymentStore.has(paymentId)) {
+    paymentStore.set(paymentId, {
+      status: "PENDING",
+    })
+  }
+  const payment = paymentStore.get(paymentId)
+  let actualPayment
+  try {
+    actualPayment = await portOne.getPayment(paymentId)
+  } catch (e) {
+    if (e instanceof PortOne.Errors.PortOneError) return false
+    throw e
+  }
+  switch (actualPayment.status) {
+    case "PAID":
+      if (!verifyPayment(actualPayment)) return false
+      if (payment.status === "PAID") return payment
+      payment.status = "PAID"
+      console.info("결제 성공", actualPayment)
+      break
+    case "VIRTUAL_ACCOUNT_ISSUED":
+      payment.status = "VIRTUAL_ACCOUNT_ISSUED"
+      break
+    default:
+      return false
+  }
+  return payment
+}
+
+const app = express()
 
 // 웹훅 검증 시 텍스트로 된 body가 필요하기 때문에, bodyParser.json보다 먼저 호출해야 합니다.
 app.use(
@@ -32,55 +84,6 @@ app.get("/item", (req, res) => {
     ...items.get(id),
   })
 })
-
-// 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
-// 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
-function verifyPayment(payment) {
-  const customData = JSON.parse(payment.customData)
-  const item = items.get(customData.item)
-  if (item == null) return false
-  const paymentItem = {
-    name: payment.orderName,
-    price: payment.amount.total,
-    currency: payment.currency,
-  }
-  for (const [key, value] of Object.entries(paymentItem))
-    if (item[key] !== value) return false
-  return true
-}
-
-// 결제 완료 요청이 웹훅 발송보다 먼저 일어나거나 웹훅 발송이 결제 완료 요청보다 먼저 일어날 수 있습니다.
-// 중복 결제를 막기 위해 결제 정보를 저장해야 합니다.
-const paymentRegistry = new Map()
-async function syncPayment(paymentId) {
-  if (!paymentRegistry.has(paymentId)) {
-    paymentRegistry.set(paymentId, {
-      status: "PENDING",
-    })
-  }
-  const payment = paymentRegistry.get(paymentId)
-  let actualPayment
-  try {
-    actualPayment = await portOne.getPayment(paymentId)
-  } catch (e) {
-    if (e instanceof PortOne.Errors.PortOneError) return false
-    throw e
-  }
-  switch (actualPayment.status) {
-    case "PAID":
-      if (!verifyPayment(actualPayment)) return false
-      if (payment.status === "PAID") return payment
-      payment.status = "PAID"
-      console.info("결제 성공", actualPayment)
-      break
-    case "VIRTUAL_ACCOUNT_ISSUED":
-      payment.status = "VIRTUAL_ACCOUNT_ISSUED"
-      break
-    default:
-      return false
-  }
-  return payment
-}
 
 // 인증 결제(결제창을 이용한 결제)를 위한 엔드포인트입니다.
 //
