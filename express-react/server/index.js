@@ -5,6 +5,7 @@ const PortOne = require("@portone/server-sdk")
 const app = express()
 const portOne = PortOne.PortOneApi(process.env.V2_API_SECRET)
 
+// 웹훅 검증 시 텍스트로 된 body가 필요하기 때문에, bodyParser.json보다 먼저 호출해야 합니다.
 app.use(
   "/payment/webhook",
   bodyParser.text({
@@ -32,6 +33,8 @@ app.get("/item", (req, res) => {
   })
 })
 
+// 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
+// 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
 function verifyPayment(payment) {
   const customData = JSON.parse(payment.customData)
   const item = items.get(customData.item)
@@ -46,6 +49,8 @@ function verifyPayment(payment) {
   return true
 }
 
+// 결제 완료 요청이 웹훅 발송보다 먼저 일어나거나 웹훅 발송이 결제 완료 요청보다 먼저 일어날 수 있습니다.
+// 중복 결제를 막기 위해 결제 정보를 저장해야 합니다.
 const paymentRegistry = new Map()
 async function syncPayment(paymentId) {
   if (!paymentRegistry.has(paymentId)) {
@@ -77,6 +82,13 @@ async function syncPayment(paymentId) {
   return payment
 }
 
+// 인증 결제(결제창을 이용한 결제)를 위한 엔드포인트입니다.
+//
+// 브라우저에서 결제 완료 후 서버에 결제 완료를 알리는 용도입니다.
+// 결제 수단 및 PG사 사정에 따라 결제 완료 후 승인이 지연될 수 있으므로
+// 결제 정보를 완전히 실시간으로 얻기 위해서는 웹훅을 사용해야 합니다.
+//
+// 인증 결제 연동 가이드: https://developers.portone.io/docs/ko/authpay/guide?v=v2
 app.post("/payment/complete", async (req, res, next) => {
   try {
     const { paymentId } = req.body
@@ -101,6 +113,10 @@ app.post("/payment/complete", async (req, res, next) => {
   }
 })
 
+// 결제 정보를 실시간으로 전달받기 위한 웹훅입니다.
+// 관리자 콘솔에서 웹훅 정보를 등록해야 사용할 수 있습니다.
+//
+// 웹훅 연동 가이드: https://developers.portone.io/docs/ko/v2-payment/webhook?v=v2
 app.post("/payment/webhook", async (req, res, next) => {
   try {
     try {
