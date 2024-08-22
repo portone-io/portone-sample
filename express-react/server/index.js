@@ -59,7 +59,7 @@ const app = express()
 
 // 웹훅 검증 시 텍스트로 된 body가 필요하기 때문에, bodyParser.json보다 먼저 호출해야 합니다.
 app.use(
-  "/payment/webhook",
+  "/api/payment/webhook",
   bodyParser.text({
     type: "application/json",
   }),
@@ -77,7 +77,7 @@ const items = new Map([
   ],
 ])
 
-app.get("/item", (req, res) => {
+app.get("/api/item", (req, res) => {
   const id = "item-a"
   res.json({
     id,
@@ -92,7 +92,7 @@ app.get("/item", (req, res) => {
 // 결제 정보를 완전히 실시간으로 얻기 위해서는 웹훅을 사용해야 합니다.
 //
 // 인증 결제 연동 가이드: https://developers.portone.io/docs/ko/authpay/guide?v=v2
-app.post("/payment/complete", async (req, res, next) => {
+app.post("/api/payment/complete", async (req, res, next) => {
   try {
     const { paymentId } = req.body
     if (typeof paymentId !== "string")
@@ -120,7 +120,7 @@ app.post("/payment/complete", async (req, res, next) => {
 // 관리자 콘솔에서 웹훅 정보를 등록해야 사용할 수 있습니다.
 //
 // 웹훅 연동 가이드: https://developers.portone.io/docs/ko/v2-payment/webhook?v=v2
-app.post("/payment/webhook", async (req, res, next) => {
+app.post("/api/payment/webhook", async (req, res, next) => {
   try {
     try {
       await PortOne.Webhook.verify(

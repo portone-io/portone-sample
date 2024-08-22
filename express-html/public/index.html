@@ -102,7 +102,7 @@
                   }
                 }, 50)
               })
-              const waitItem = await fetch("/item").then(
+              const waitItem = await fetch("/api/item").then(
                 async (response) => (this.item = await response.json()),
               )
               await Promise.all([waitPortOne, waitItem])
@@ -150,7 +150,7 @@
                   console.log(payment)
                   this.openFailDialog(payment.message)
                 }
-                const completeResponse = await fetch("/payment/complete", {
+                const completeResponse = await fetch("/api/payment/complete", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
