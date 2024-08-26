@@ -4,6 +4,7 @@
 
 - [Express + HTML](/express-html)
 - [Express + React](/express-react)
+- [Next.js](/nextjs)
 
 ---
 

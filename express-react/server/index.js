@@ -7,17 +7,15 @@ const portOne = PortOne.PortOneApi(process.env.V2_API_SECRET)
 // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
 function verifyPayment(payment) {
+  if (payment.customData == null) return false
   const customData = JSON.parse(payment.customData)
   const item = items.get(customData.item)
   if (item == null) return false
-  const paymentItem = {
-    name: payment.orderName,
-    price: payment.amount.total,
-    currency: payment.currency,
-  }
-  for (const [key, value] of Object.entries(paymentItem))
-    if (item[key] !== value) return false
-  return true
+  return (
+    payment.orderName === item.name &&
+    payment.amount.total === item.price &&
+    payment.currency === item.currency
+  )
 }
 
 // 서버의 결제 데이터베이스를 따라하는 샘플입니다.
@@ -39,6 +37,7 @@ async function syncPayment(paymentId) {
     if (e instanceof PortOne.Errors.PortOneError) return false
     throw e
   }
+  if (actualPayment == null) return false
   switch (actualPayment.status) {
     case "PAID":
       if (!verifyPayment(actualPayment)) return false
