@@ -87,140 +87,113 @@
       checkout.load()
 
       function Checkout(storeId, channelKey) {
-        Object.defineProperties(this, {
-          item: {
-            value: null,
-            writable: true,
-          },
-          load: {
-            value: async () => {
-              const waitPortOne = new Promise((resolve) => {
-                const polling = setInterval(() => {
-                  if (window.PortOne != null) {
-                    clearInterval(polling)
-                    resolve()
-                  }
-                }, 50)
-              })
-              const waitItem = await fetch("/api/item").then(
-                async (response) => (this.item = await response.json()),
-              )
-              await Promise.all([waitPortOne, waitItem])
-              window.checkoutDialog.open = true
-              await this.showCheckout()
-            },
-            writable: false,
-          },
-          showCheckout: {
-            value: async () => {
-              window.itemName.replaceChildren(this.item.name)
-              window.price.replaceChildren(`${this.item.price}원`)
-              window.checkoutDialog.onsubmit = async (e) => {
-                e.preventDefault()
-                this.setWaitingPayment(true)
-                const formData = new FormData(window.checkoutForm)
-                const payMethod = formData.get("method")
-                const additionalParams = {}
-                switch (payMethod) {
-                  case "VIRTUAL_ACCOUNT":
-                    additionalParams.virtualAccount = {
-                      accountExpiry: {
-                        validHours: 1, // 1시간
-                      },
-                    }
-                    break
-                }
-
-                const paymentId = randomId()
-                const payment = await PortOne.requestPayment({
-                  storeId,
-                  channelKey,
-                  paymentId,
-                  orderName: this.item.name,
-                  totalAmount: this.item.price,
-                  currency: this.item.currency,
-                  payMethod: payMethod,
-                  customData: {
-                    item: this.item.id,
-                  },
-                  ...additionalParams,
-                })
-                if (payment.code != null) {
-                  this.setWaitingPayment(false)
-                  console.log(payment)
-                  this.openFailDialog(payment.message)
-                }
-                const completeResponse = await fetch("/api/payment/complete", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    paymentId: payment.paymentId,
-                  }),
-                })
-                this.setWaitingPayment(false)
-                if (completeResponse.ok) {
-                  const paymentComplete = await completeResponse.json()
-                  switch (await paymentComplete.status) {
-                    case "PAID":
-                      this.openSuccessDialog()
-                      break
-                    case "VIRTUAL_ACCOUNT_ISSUED":
-                      this.openVirtualAccountDialog()
-                      break
-                  }
-                } else {
-                  this.openFailDialog(await completeResponse.text())
-                }
+        let item = null
+        this.load = async () => {
+          const waitPortOne = new Promise((resolve) => {
+            const polling = setInterval(() => {
+              if (window.PortOne != null) {
+                clearInterval(polling)
+                resolve()
               }
-              for (const dialogButton of document.getElementsByClassName(
-                "closeDialog",
-              )) {
-                dialogButton.onclick = () => {
-                  dialogButton.parentElement.parentElement.open = false
+            }, 50)
+          })
+          const waitItem = await fetch("/api/item").then(
+            async (response) => (item = await response.json()),
+          )
+          await Promise.all([waitPortOne, waitItem])
+          window.checkoutDialog.open = true
+          await this.showCheckout()
+        }
+        this.showCheckout = async () => {
+          window.itemName.replaceChildren(item.name)
+          window.price.replaceChildren(`${item.price}원`)
+          window.checkoutDialog.onsubmit = async (e) => {
+            e.preventDefault()
+            this.setWaitingPayment(true)
+            const formData = new FormData(window.checkoutForm)
+            const payMethod = formData.get("method")
+            const additionalParams = {}
+            switch (payMethod) {
+              case "VIRTUAL_ACCOUNT":
+                additionalParams.virtualAccount = {
+                  accountExpiry: {
+                    validHours: 1, // 1시간
+                  },
                 }
-              }
-              window.checkoutDialog.open = true
-            },
-            writable: false,
-          },
-          setWaitingPayment: {
-            value: (isWaiting) => {
-              window.checkoutButton.setAttribute(
-                "aria-busy",
-                isWaiting.toString(),
-              )
-              window.checkoutButton.disabled = isWaiting
-            },
-            writable: false,
-          },
-          openFailDialog: {
-            value: (message) => {
-              window.failMessage.replaceChildren(message)
-              window.failDialog.open = true
-            },
-            writable: false,
-          },
-          openSuccessDialog: {
-            value: () => {
-              window.successDialog.open = true
-            },
-            writable: false,
-          },
-          openVirtualAccountDialog: {
-            value: () => {
-              window.virtualAccountDialog.open = true
-            },
-            writable: false,
-          },
-        })
-      }
+                break
+            }
 
-      function randomId() {
-        return [...crypto.getRandomValues(new Uint32Array(2))]
-          .map((word) => word.toString(16).padStart(8, "0"))
-          .join("")
+            const paymentId = randomId()
+            const payment = await PortOne.requestPayment({
+              storeId,
+              channelKey,
+              paymentId,
+              orderName: item.name,
+              totalAmount: item.price,
+              currency: item.currency,
+              payMethod: payMethod,
+              customData: {
+                item: item.id,
+              },
+              ...additionalParams,
+            })
+            if (payment.code != null) {
+              this.setWaitingPayment(false)
+              console.log(payment)
+              this.openFailDialog(payment.message)
+            }
+            const completeResponse = await fetch("/api/payment/complete", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                paymentId: payment.paymentId,
+              }),
+            })
+            this.setWaitingPayment(false)
+            if (completeResponse.ok) {
+              const paymentComplete = await completeResponse.json()
+              switch (await paymentComplete.status) {
+                case "PAID":
+                  this.openSuccessDialog()
+                  break
+                case "VIRTUAL_ACCOUNT_ISSUED":
+                  this.openVirtualAccountDialog()
+                  break
+              }
+            } else {
+              this.openFailDialog(await completeResponse.text())
+            }
+          }
+          for (const dialogButton of document.getElementsByClassName(
+            "closeDialog",
+          )) {
+            dialogButton.onclick = () => {
+              dialogButton.parentElement.parentElement.open = false
+            }
+          }
+          window.checkoutDialog.open = true
+        }
+        this.setWaitingPayment = (isWaiting) => {
+          window.checkoutButton.setAttribute("aria-busy", isWaiting.toString())
+          window.checkoutButton.disabled = isWaiting
+        }
+        this.openFailDialog = (message) => {
+          window.failMessage.replaceChildren(message)
+          window.failDialog.open = true
+        }
+        this.openSuccessDialog = () => {
+          window.successDialog.open = true
+        }
+        this.openVirtualAccountDialog = () => {
+          window.virtualAccountDialog.open = true
+        }
+        function randomId() {
+          return [...crypto.getRandomValues(new Uint32Array(2))]
+            .map((word) => word.toString(16).padStart(8, "0"))
+            .join("")
+        }
       }
     </script>
   </body>
