@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-pnpm-lock.yaml
+*-lock.*
 .venv/
 __pycache__/
 uv.lock
