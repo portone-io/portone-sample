@@ -5,6 +5,9 @@
 - [Express + HTML](/express-html)
 - [Express + React](/express-react)
 - [Next.js](/nextjs)
+- [FastAPI + HTML](/fastapi-html)
+- [FastAPI + React](/fastapi-react)
+- [Flask + HTML](/flask-html)
 - [Flask + React](/flask-react)
 
 ---

@@ -1,0 +1,19 @@
+[project]
+name = "server"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=3.0.3",
+    "portone-server-sdk>=0.1.0a4",
+    "python-dotenv>=1.0.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.6.2",
+]

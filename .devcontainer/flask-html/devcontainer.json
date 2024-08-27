@@ -1,0 +1,11 @@
+{
+	"name": "Flask + HTML",
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+	"features": {
+		"ghcr.io/va-h/devcontainers-features/uv:1": {}
+	},
+	"forwardPorts": [8080],
+	"postCreateCommand": "uv sync",
+	"workspaceMount": "source=${localWorkspaceFolder}/flask-html,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}
