@@ -1,0 +1,8 @@
+{
+	"name": "Express + HTML",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+	"forwardPorts": [8080],
+	"postCreateCommand": "npm install",
+	"workspaceMount": "source=${localWorkspaceFolder}/express-html,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}

@@ -6,5 +6,8 @@
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/va-h/devcontainers-features/uv:1": {}
 	},
-	"forwardPorts": [5173]
+	"forwardPorts": [5173],
+	"postCreateCommand": "npm install && uv sync",
+	"workspaceMount": "source=${localWorkspaceFolder}/flask-react,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
 }
