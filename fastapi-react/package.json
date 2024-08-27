@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "commonjs",
   "scripts": {
-    "dev": "concurrently \"vite\" \"uv run python -m flask run\"",
+    "dev": "concurrently \"vite\" \"uv run fastapi dev server --port 8080\"",
     "build": "vite build",
     "lint": "eslint .",
     "format": "prettier --write ."

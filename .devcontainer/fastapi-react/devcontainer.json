@@ -1,0 +1,13 @@
+{
+	"name": "FastAPI + React",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/va-h/devcontainers-features/uv:1": {}
+	},
+	"forwardPorts": [5173],
+	"postCreateCommand": "npm install && uv sync",
+	"workspaceMount": "source=${localWorkspaceFolder}/fastapi-react,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}

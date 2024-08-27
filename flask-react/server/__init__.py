@@ -19,7 +19,7 @@ class Payment:
     status: str
 
 
-def create_app() -> Flask:
+def create_app():
     load_dotenv()
 
     app = Flask(__name__)
