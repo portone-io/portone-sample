@@ -48,7 +48,7 @@ def create_app():
             payment_store[payment_id] = Payment("PENDING")
         payment = payment_store[payment_id]
         try:
-            actual_payment = portone_api.get_payment(payment_id)
+            actual_payment = portone_api.get_payment(payment_id=payment_id)
         except portone.errors.PortOneError:
             return None
         if actual_payment is None:
