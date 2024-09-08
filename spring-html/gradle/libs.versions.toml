@@ -1,0 +1,14 @@
+[versions]
+kotlin = "2.0.20"
+spring-boot = "3.3.3"
+portone-server-sdk = "0.2.0-alpha.2"
+
+[libraries]
+portone-server-sdk = { module = "io.portone:server-sdk", version.ref = "portone-server-sdk" }
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
