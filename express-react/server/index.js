@@ -128,7 +128,7 @@ app.post("/api/payment/webhook", async (req, res, next) => {
         req.headers,
       )
     } catch (e) {
-      if (e instanceof PortOne.Webhook.WebhookVerificationError)
+      if (e instanceof PortOne.Errors.WebhookVerificationError)
         return res.status(400).end()
       throw e
     }
