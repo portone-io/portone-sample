@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 import json
 import os
+from dataclasses import dataclass
 from typing import Annotated, Optional
+
 import portone_server_sdk as portone
 from dotenv import load_dotenv
 from fastapi import Body, Depends, FastAPI, Request
@@ -13,7 +14,7 @@ class Item:
     id: str
     name: str
     price: int
-    currency: portone.schemas.Currency
+    currency: portone.common.Currency
 
 
 @dataclass
@@ -25,7 +26,7 @@ load_dotenv()
 app = FastAPI()
 
 items = {item.id: item for item in [Item("item-a", "품목 A", 39900, "KRW")]}
-portone_api = portone.PortOneApi(os.environ["V2_API_SECRET"])
+portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
 
 
 # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
@@ -52,7 +53,7 @@ def sync_payment(payment_id):
         payment_store[payment_id] = Payment("PENDING")
     payment = payment_store[payment_id]
     try:
-        actual_payment = portone_api.get_payment(payment_id=payment_id)
+        actual_payment = portone_client.payment.get_payment(payment_id=payment_id)
     except portone.errors.PortOneError:
         return None
     if actual_payment is None:
@@ -108,7 +109,7 @@ def receive_webhook(
             body.decode("utf-8"),
             request.headers,
         )
-    except portone.errors.WebhookNotFoundError:
+    except portone.webhook.WebhookNotFoundError:
         return "Bad Request", 400
     if webhook.type.startswith("Transaction."):
         sync_payment(webhook.data.payment_id)

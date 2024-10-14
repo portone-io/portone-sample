@@ -1,9 +1,10 @@
-from dataclasses import dataclass
 import json
 import os
-from flask import Flask, jsonify, request
+from dataclasses import dataclass
+
 import portone_server_sdk as portone
 from dotenv import load_dotenv
+from flask import Flask, jsonify, request
 
 
 @dataclass
@@ -11,7 +12,7 @@ class Item:
     id: str
     name: str
     price: int
-    currency: portone.schemas.Currency
+    currency: portone.common.Currency
 
 
 @dataclass
@@ -29,7 +30,7 @@ def create_app():
         return app.send_static_file("index.html")
 
     items = {item.id: item for item in [Item("item-a", "품목 A", 39900, "KRW")]}
-    portone_api = portone.PortOneApi(os.environ["V2_API_SECRET"])
+    portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
 
     # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     # 포트원의 custom_data 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
@@ -53,7 +54,7 @@ def create_app():
             payment_store[payment_id] = Payment("PENDING")
         payment = payment_store[payment_id]
         try:
-            actual_payment = portone_api.get_payment(payment_id=payment_id)
+            actual_payment = portone_client.payment.get_payment(payment_id=payment_id)
         except portone.errors.PortOneError:
             return None
         if actual_payment is None:
@@ -93,7 +94,7 @@ def create_app():
                 request.get_data(as_text=True),
                 request.headers,
             )
-        except portone.errors.WebhookNotFoundError:
+        except portone.webhook.WebhookNotFoundError:
             return "Bad Request", 400
         type = request.json.get("type", None)
         if isinstance(type, str) and type.startswith("Transaction."):

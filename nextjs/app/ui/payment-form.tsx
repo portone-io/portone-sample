@@ -1,6 +1,7 @@
 "use client"
 
 import * as PortOne from "@portone/browser-sdk/v2"
+import { Currency } from "@portone/server-sdk/common"
 import { FormEventHandler, useState } from "react"
 import { randomId } from "../lib/random"
 
@@ -8,7 +9,7 @@ export type Item = {
   id: string
   name: string
   price: number
-  currency: PortOne.Entity.Currency
+  currency: Currency
 }
 
 export type PaymentFormProps = {

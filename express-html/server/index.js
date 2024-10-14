@@ -3,7 +3,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const PortOne = require("@portone/server-sdk")
 
-const portOne = PortOne.PortOneApi(process.env.V2_API_SECRET)
+const portOne = PortOne.PortOneClient(process.env.V2_API_SECRET)
 
 // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
@@ -33,7 +33,7 @@ async function syncPayment(paymentId) {
   const payment = paymentStore.get(paymentId)
   let actualPayment
   try {
-    actualPayment = await portOne.getPayment(paymentId)
+    actualPayment = await portOne.payment.getPayment(paymentId)
   } catch (e) {
     if (e instanceof PortOne.Errors.PortOneError) return false
     throw e
@@ -135,7 +135,7 @@ app.post("/api/payment/webhook", async (req, res, next) => {
         req.headers,
       )
     } catch (e) {
-      if (e instanceof PortOne.Errors.WebhookVerificationError)
+      if (e instanceof PortOne.Webhook.WebhookVerificationError)
         return res.status(400).end()
       throw e
     }
