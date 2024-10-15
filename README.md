@@ -9,6 +9,7 @@
 - [FastAPI + React](/fastapi-react)
 - [Flask + HTML](/flask-html)
 - [Flask + React](/flask-react)
+- [Spring Boot + HTML](/spring-html)
 
 ---
 
