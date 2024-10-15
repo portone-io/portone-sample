@@ -1,6 +1,6 @@
 package org.example
 
-import io.portone.sdk.server.schemas.Currency
+import io.portone.sdk.server.common.Currency
 
 data class Item(
     val id: String,
