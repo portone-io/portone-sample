@@ -1,0 +1,14 @@
+{
+	"name": "Spring + HTML",
+	"image": "mcr.microsoft.com/devcontainers/java:1-21-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "false",
+			"installGradle": "true"
+		}
+	},
+	"forwardPorts": [8080],
+	"workspaceMount": "source=${localWorkspaceFolder}/spring-html,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}

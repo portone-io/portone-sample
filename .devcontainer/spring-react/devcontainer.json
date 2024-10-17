@@ -1,0 +1,16 @@
+{
+	"name": "Spring + React",
+	"image": "mcr.microsoft.com/devcontainers/java:1-21-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "false",
+			"installGradle": "true"
+		},
+		"ghcr.io/devcontainers/features/node:1": {}
+	},
+	"forwardPorts": [5173],
+	"postCreateCommand": "npm install",
+	"workspaceMount": "source=${localWorkspaceFolder}/spring-react,target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}
