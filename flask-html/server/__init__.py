@@ -29,7 +29,7 @@ def create_app():
     def index():
         return app.send_static_file("index.html")
 
-    items = {item.id: item for item in [Item("item-a", "품목 A", 39900, "KRW")]}
+    items = {item.id: item for item in [Item("shoes", "나이키 멘즈 조이라이드 플라이니트", 1000, "KRW")]}
     portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
 
     # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
@@ -74,7 +74,7 @@ def create_app():
 
     @app.get("/api/item")
     def get_item():
-        return jsonify(items["item-a"])
+        return jsonify(items["shoes"])
 
     @app.post("/api/payment/complete")
     def complete_payment():

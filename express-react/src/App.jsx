@@ -6,7 +6,6 @@ const { VITE_STORE_ID, VITE_CHANNEL_KEY } = import.meta.env
 
 export function App() {
   const [item, setItem] = useState(null)
-  const [isWaitingPayment, setWaitingPayment] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState({
     status: "IDLE",
   })
@@ -30,7 +29,7 @@ export function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setWaitingPayment(true)
+    setPaymentStatus({ status: "PENDING" })
     const paymentId = randomId()
     const payment = await PortOne.requestPayment({
       storeId: VITE_STORE_ID,
@@ -45,7 +44,6 @@ export function App() {
       },
     })
     if (payment.code != null) {
-      setWaitingPayment(false)
       setPaymentStatus({
         status: "FAILED",
         message: payment.message,
@@ -61,7 +59,6 @@ export function App() {
         paymentId: payment.paymentId,
       }),
     })
-    setWaitingPayment(false)
     if (completeResponse.ok) {
       const paymentComplete = await completeResponse.json()
       setPaymentStatus({
@@ -74,6 +71,8 @@ export function App() {
       })
     }
   }
+
+  const isWaitingPayment = paymentStatus.status !== "IDLE"
 
   const handleClose = () =>
     setPaymentStatus({

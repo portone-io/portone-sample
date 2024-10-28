@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@portone/browser-sdk": "^0.0.10",
-    "@portone/server-sdk": "0.6.0",
+    "@portone/server-sdk": "^0.6.0",
     "body-parser": "^1.20.2",
     "express": "^4.19.2",
     "react": "^18.3.1",
@@ -24,7 +24,6 @@
     "concurrently": "^8.2.2",
     "dotenv-flow": "^4.1.0",
     "prettier": "^3.3.3",
-    "reset-css": "^5.0.2",
     "vite": "^5.4.2"
   },
   "engines": {

@@ -21,11 +21,11 @@ class PaymentController(private val secret: PortOneSecretProperties) {
     companion object {
         private val items: Map<String, Item> =
             mapOf(
-                "item-a" to
+                "shoes" to
                     Item(
-                        id = "item-a",
-                        name = "품목 A",
-                        price = 39900,
+                        id = "shoes",
+                        name = "나이키 멘즈 조이라이드 플라이니트",
+                        price = 1000,
                         currency = Currency.KRW,
                     ),
             )
@@ -40,7 +40,7 @@ class PaymentController(private val secret: PortOneSecretProperties) {
 
     @GetMapping("/api/item")
     fun getItem(): Item {
-        return items["item-a"]!!
+        return items["shoes"]!!
     }
 
     // 인증 결제(결제창을 이용한 결제)를 위한 엔드포인트입니다.

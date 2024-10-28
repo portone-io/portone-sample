@@ -26,7 +26,10 @@ class Payment:
 load_dotenv()
 app = FastAPI()
 
-items = {item.id: item for item in [Item("item-a", "품목 A", 39900, "KRW")]}
+items = {
+    item.id: item
+    for item in [Item("shoes", "나이키 멘즈 조이라이드 플라이니트", 1000, "KRW")]
+}
 portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
 
 
@@ -75,7 +78,7 @@ def sync_payment(payment_id):
 
 @app.get("/api/item")
 def get_item():
-    return items["item-a"]
+    return items["shoes"]
 
 
 @app.post("/api/payment/complete")
