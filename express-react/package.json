@@ -10,7 +10,6 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@picocss/pico": "^2.0.6",
     "@portone/browser-sdk": "^0.0.10",
     "@portone/server-sdk": "0.6.0",
     "body-parser": "^1.20.2",
@@ -25,7 +24,7 @@
     "concurrently": "^8.2.2",
     "dotenv-flow": "^4.1.0",
     "prettier": "^3.3.3",
-    "sass-embedded": "^1.77.8",
+    "reset-css": "^5.0.2",
     "vite": "^5.4.2"
   },
   "engines": {

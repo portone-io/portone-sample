@@ -67,17 +67,17 @@ app.use(bodyParser.json())
 
 const items = new Map([
   [
-    "item-a",
+    "shoes",
     {
-      name: "품목 A",
-      price: 39900,
+      name: "나이키 멘즈 조이라이드 플라이니트",
+      price: 1000,
       currency: "KRW",
     },
   ],
 ])
 
 app.get("/api/item", (req, res) => {
-  const id = "item-a"
+  const id = "shoes"
   res.json({
     id,
     ...items.get(id),
@@ -98,18 +98,9 @@ app.post("/api/payment/complete", async (req, res, next) => {
       return res.status(400).send("올바르지 않은 요청입니다.").end()
     const payment = await syncPayment(paymentId)
     if (!payment) return res.status(400).send("결제 동기화에 실패했습니다.")
-    switch (payment.status) {
-      case "PAID":
-        res.status(200).json({
-          status: "PAID",
-        })
-        break
-      case "VIRTUAL_ACCOUNT_ISSUED":
-        res.status(200).json({
-          status: "VIRTUAL_ACCOUNT_ISSUED",
-        })
-        break
-    }
+    res.status(200).json({
+      status: payment.status,
+    })
   } catch (e) {
     next(e)
   }
