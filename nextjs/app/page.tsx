@@ -5,10 +5,10 @@ const portOne = PortOne.PortOneClient(process.env.V2_API_SECRET)
 
 const items = new Map<string, Omit<Item, "id">>([
   [
-    "item-a",
+    "shoes",
     {
-      name: "품목 A",
-      price: 39900,
+      name: "나이키 멘즈 조이라이드 플라이니트",
+      price: 1000,
       currency: "KRW",
     },
   ],
@@ -17,11 +17,9 @@ const items = new Map<string, Omit<Item, "id">>([
 // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
 function verifyPayment(payment: PortOne.Payment.Payment) {
-  console.log(payment)
   if (payment.customData == null) return false
   const customData = JSON.parse(payment.customData)
   const item = items.get(customData.item)
-  console.log(item)
   if (item == null) return false
   return (
     payment.orderName === item.name &&
@@ -35,7 +33,7 @@ function verifyPayment(payment: PortOne.Payment.Payment) {
 // 브라우저의 결제 완료 호출과 포트원의 웹훅 호출 두 경우에 모두 상태 동기화가 필요합니다.
 // 실제 데이터베이스 사용시에는 결제건 단위 락을 잡아 동시성 문제를 피하도록 합니다.
 type Payment = {
-  status: PortOne.Common.PaymentStatus
+  status: PortOne.Payment.PaymentStatus
 }
 const paymentStore = new Map<string, Payment>()
 async function syncPayment(paymentId: string) {
@@ -84,26 +82,19 @@ async function completePayment(paymentId: string) {
 }
 
 export default function Home() {
+  const shoes = items.get("shoes")!
   const item = {
-    id: "item-a",
-    ...items.get("item-a")!,
+    ...shoes,
+    id: "shoes",
+    currency: shoes.currency,
   }
 
   return (
-    <>
-      <dialog open>
-        <article>
-          <header>
-            <h1>{item.name}</h1>
-          </header>
-          <PaymentForm
-            item={item}
-            storeId={process.env.STORE_ID}
-            channelKey={process.env.CHANNEL_KEY}
-            completePaymentAction={completePayment}
-          />
-        </article>
-      </dialog>
-    </>
+    <PaymentForm
+      item={item}
+      storeId={process.env.STORE_ID}
+      channelKey={process.env.CHANNEL_KEY}
+      completePaymentAction={completePayment}
+    />
   )
 }

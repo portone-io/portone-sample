@@ -3,82 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="/index.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      as="style"
-      crossorigin="anonymous"
-      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-    />
-    <link
-      rel="stylesheet"
-      as="style"
-      crossorigin="anonymous"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-    />
-    <style>
-      :root {
-        --pico-font-family-sans-serif: "Pretendard Variable", Pretendard,
-          -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue",
-          "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
-          "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-      }
-    </style>
     <title>포트원 결제연동 샘플</title>
     <script src="https://cdn.portone.io/v2/browser-sdk.js" async defer></script>
   </head>
   <body>
-    <dialog id="loadingDialog" open>
-      <article aria-busy="true">결제 정보를 불러오는 중입니다.</article>
-    </dialog>
-    <dialog id="checkoutDialog">
-      <article>
-        <header>
-          <h1 id="itemName"></h1>
-        </header>
+    <div id="root">
+      <dialog id="loadingDialog" open>
+        <article aria-busy="true">결제 정보를 불러오는 중입니다.</article>
+      </dialog>
+      <main id="checkoutDialog" style="display: none">
         <form id="checkoutForm">
-          <label>
-            <h4>결제 금액</h4>
-            <p id="price"></p>
-          </label>
-          <label>
-            <h4>결제 수단</h4>
-            <select name="method">
-              <option value="CARD">카드</option>
-              <option value="VIRTUAL_ACCOUNT">가상계좌</option>
-            </select>
-          </label>
+          <article>
+            <div class="item">
+              <div class="item-image">
+                <img id="itemImage" />
+              </div>
+              <div class="item-text">
+                <h5 id="itemName"></h5>
+                <p class="price-value"></p>
+              </div>
+            </div>
+            <div class="price">
+              <label>총 구입 가격</label>
+              <span class="price-value" />
+            </div>
+          </article>
           <button id="checkoutButton" type="submit">결제</button>
         </form>
-      </article>
-    </dialog>
-    <dialog id="failDialog">
-      <article>
+      </main>
+      <dialog id="failDialog">
         <header>
           <h1>결제 실패</h1>
         </header>
-        <p id="failMessage"></p>
+        <p />
         <button type="button" class="closeDialog">닫기</button>
-      </article>
-    </dialog>
-    <dialog id="successDialog">
-      <article>
+      </dialog>
+      <dialog id="successDialog">
         <header>
           <h1>결제 성공</h1>
         </header>
         <p>결제에 성공했습니다.</p>
         <button type="button" class="closeDialog">닫기</button>
-      </article>
-    </dialog>
-    <dialog id="virtualAccountDialog">
-      <article>
+      </dialog>
+      <dialog id="virtualAccountDialog">
         <header>
           <h1>가상계좌 발급 완료</h1>
         </header>
-        <p>결제를 위한 가상계좌를 발급했습니다.</p>
+        <p>가상계좌가 발급되었습니다.</p>
         <button type="button" class="closeDialog">닫기</button>
-      </article>
-    </dialog>
+      </dialog>
+    </div>
     <script>
       const checkout = new Checkout(
         "store-00000000-0000-0000-0000-000000000000", // 상점 ID
@@ -101,28 +77,22 @@
             async (response) => (item = await response.json()),
           )
           await Promise.all([waitPortOne, waitItem])
+          window.loadingDialog.open = false
           window.checkoutDialog.open = true
           await this.showCheckout()
         }
         this.showCheckout = async () => {
           window.itemName.replaceChildren(item.name)
-          window.price.replaceChildren(`${item.price}원`)
+          window.itemImage.src = `/${item.id}.png`
+          console.log(document.querySelectorAll(".price-value"))
+          for (const priceElement of document.querySelectorAll(
+            ".price-value",
+          )) {
+            priceElement.replaceChildren(`${item.price.toLocaleString()}원`)
+          }
           window.checkoutDialog.onsubmit = async (e) => {
             e.preventDefault()
             this.setWaitingPayment(true)
-            const formData = new FormData(window.checkoutForm)
-            const payMethod = formData.get("method")
-            const additionalParams = {}
-            switch (payMethod) {
-              case "VIRTUAL_ACCOUNT":
-                additionalParams.virtualAccount = {
-                  accountExpiry: {
-                    validHours: 1, // 1시간
-                  },
-                }
-                break
-            }
-
             const paymentId = randomId()
             const payment = await PortOne.requestPayment({
               storeId,
@@ -131,11 +101,10 @@
               orderName: item.name,
               totalAmount: item.price,
               currency: item.currency,
-              payMethod: payMethod,
+              payMethod: "CARD",
               customData: {
                 item: item.id,
               },
-              ...additionalParams,
             })
             if (payment.code != null) {
               this.setWaitingPayment(false)
@@ -173,7 +142,7 @@
               dialogButton.parentElement.parentElement.open = false
             }
           }
-          window.checkoutDialog.open = true
+          window.checkoutDialog.style = ""
         }
         this.setWaitingPayment = (isWaiting) => {
           window.checkoutButton.setAttribute("aria-busy", isWaiting.toString())
