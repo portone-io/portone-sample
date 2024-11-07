@@ -38,7 +38,12 @@ export function App() {
       orderName: item.name,
       totalAmount: item.price,
       currency: item.currency,
-      payMethod: "CARD",
+      payMethod: "VIRTUAL_ACCOUNT",
+      virtualAccount: {
+        accountExpiry: {
+          validHours: 1,
+        },
+      },
       customData: {
         item: item.id,
       },

@@ -113,21 +113,17 @@ app.post("/api/payment/complete", async (req, res, next) => {
 app.post("/api/payment/webhook", async (req, res, next) => {
   try {
     try {
-      await PortOne.Webhook.verify(
+      const webhook = await PortOne.Webhook.verify(
         process.env.V2_WEBHOOK_SECRET,
         req.body,
         req.headers,
       )
+      if ("paymentId" in webhook.data) await syncPayment(webhook.data.paymentId)
     } catch (e) {
       if (e instanceof PortOne.Webhook.WebhookVerificationError)
         return res.status(400).end()
       throw e
     }
-    const {
-      type,
-      data: { paymentId },
-    } = JSON.parse(req.body)
-    if (type.startsWith("Transaction.")) await syncPayment(paymentId)
     res.status(200).end()
   } catch (e) {
     next(e)
