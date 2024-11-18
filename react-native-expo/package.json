@@ -4,20 +4,20 @@
   "main": "expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios"
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
-    "@portone/react-native-sdk": "^0.1.5",
-    "expo": "~51.0.28",
-    "expo-status-bar": "~1.12.1",
-    "react": "18.2.0",
-    "react-native": "0.74.5",
-    "react-native-webview": "~13.8.6"
+    "@portone/react-native-sdk": "0.3.0",
+    "expo": "^52.0.7",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.2",
+    "react-native-webview": "13.12.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@types/react": "~18.2.45",
+    "@babel/core": "^7.26.0",
+    "@types/react": "~18.3.12",
     "prettier": "^3.3.3",
     "typescript": "~5.3.3"
   },

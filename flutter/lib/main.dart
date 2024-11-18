@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -88,8 +89,22 @@ PortOne.requestPayment({
       ..loadFlutterAsset('assets/delegate.html');
 
     return Scaffold(
-      body: SafeArea(
-        child: WebViewWidget(controller: controller),
+      body: PopScope(
+        canPop: false,
+        // 뒤로가기 버튼을 눌렀을 때 이벤트를 웹뷰에 전달합니다.
+        onPopInvokedWithResult: (didPop, result) async {
+          if (await controller.canGoBack()) {
+            await controller.goBack();
+          } else {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              var state = Navigator.of(context);
+              if (state.canPop()) state.pop();
+            });
+          }
+        },
+        child: SafeArea(
+          child: WebViewWidget(controller: controller),
+        ),
       ),
     );
   }

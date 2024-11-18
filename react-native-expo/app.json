@@ -11,15 +11,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.kiwiyou.reactnativeexpo"
     },
-    "plugins": ["@portone/react-native-sdk/plugin"]
+    "plugins": [
+      "@portone/react-native-sdk/plugin"
+    ]
   }
 }
