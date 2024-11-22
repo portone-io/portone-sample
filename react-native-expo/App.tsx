@@ -18,6 +18,7 @@ export default function App() {
     )
     return () => backHandler.remove()
   })
+  const uid = Date.now().toString(16)
   return (
     <View style={{ flex: 1 }}>
       <Payment
@@ -25,7 +26,7 @@ export default function App() {
         request={{
           storeId: "store-00000000-0000-0000-0000-000000000000",
           channelKey: "channel-key-00000000-0000-0000-0000-000000000000",
-          paymentId: "test",
+          paymentId: uid,
           orderName: "주문명",
           totalAmount: 1000,
           currency: "CURRENCY_KRW",

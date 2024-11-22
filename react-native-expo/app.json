@@ -20,6 +20,9 @@
     },
     "plugins": [
       "@portone/react-native-sdk/plugin"
-    ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.kiwiyou.reactnativeexpo"
+    }
   }
 }
