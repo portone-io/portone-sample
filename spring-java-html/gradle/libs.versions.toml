@@ -1,6 +1,6 @@
 [versions]
 spring-boot = "3.3.5"
-portone-server-sdk = "0.7.0"
+portone-server-sdk = "0.9.1"
 
 [libraries]
 portone-server-sdk = { module = "io.portone:server-sdk", version.ref = "portone-server-sdk" }

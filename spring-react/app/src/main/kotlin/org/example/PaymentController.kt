@@ -1,13 +1,13 @@
 package org.example
 
-import io.portone.sdk.server.PortOneClient
 import io.portone.sdk.server.common.Currency
 import io.portone.sdk.server.payment.PaidPayment
+import io.portone.sdk.server.payment.PaymentClient
 import io.portone.sdk.server.payment.VirtualAccountIssuedPayment
+import io.portone.sdk.server.webhook.WebhookTransaction
 import io.portone.sdk.server.webhook.WebhookVerifier
 import kotlinx.serialization.json.Json
 import org.example.request.CompletePaymentRequest
-import org.example.request.WebhookRequest
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,25 +17,25 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class PaymentController(private val secret: PortOneSecretProperties) {
+class PaymentController(secret: PortOneSecretProperties) {
     companion object {
         private val items: Map<String, Item> =
             mapOf(
                 "shoes" to
                     Item(
                         id = "shoes",
-                        name = "나이키 멘즈 조이라이드 플라이니트",
+                        name = "신발",
                         price = 1000,
-                        currency = Currency.KRW,
+                        currency = Currency.Krw.value,
                     ),
             )
 
         private val paymentStore: MutableMap<String, Payment> = mutableMapOf()
-        private val json: Json = Json.Default
+        private val json: Json = Json { ignoreUnknownKeys = true }
         private val logger: Logger = LoggerFactory.getLogger(PaymentController::class.java)
     }
 
-    private val portone = PortOneClient(secret.api)
+    private val portone = PaymentClient(apiSecret = secret.api)
     private val portoneWebhook = WebhookVerifier(secret.webhook)
 
     @GetMapping("/api/item")
@@ -70,11 +70,10 @@ class PaymentController(private val secret: PortOneSecretProperties) {
         val webhook =
             try {
                 portoneWebhook.verify(body, webhookId, webhookTimestamp, webhookSignature)
-                json.decodeFromString<WebhookRequest>(body)
             } catch (_: Exception) {
                 throw SyncPaymentException()
             }
-        if (webhook.type.startsWith("Transaction.")) {
+        if (webhook is WebhookTransaction) {
             syncPayment(webhook.data.paymentId)
         }
     }
@@ -90,7 +89,7 @@ class PaymentController(private val secret: PortOneSecretProperties) {
             }
         val actualPayment =
             try {
-                portone.payment.getPayment(paymentId)
+                portone.getPayment(paymentId = paymentId)
             } catch (_: Exception) {
                 throw SyncPaymentException()
             }
@@ -102,13 +101,13 @@ class PaymentController(private val secret: PortOneSecretProperties) {
                     payment
                 } else {
                     payment.copy(status = "PAID").also {
-                        paymentStore.put(paymentId, it)
+                        paymentStore[paymentId] = it
                     }
                 }
             }
             is VirtualAccountIssuedPayment ->
                 payment.copy(status = "VIRTUAL_ACCOUNT_ISSUED").also {
-                    paymentStore.put(paymentId, it)
+                    paymentStore[paymentId] = it
                 }
             else -> throw SyncPaymentException()
         }
@@ -116,12 +115,12 @@ class PaymentController(private val secret: PortOneSecretProperties) {
 
     // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
-    fun verifyPayment(payment: io.portone.sdk.server.payment.Payment): Boolean =
-        payment.customData?.let {
-            items[json.decodeFromString<PaymentCustomData>(it).item]?.let {
+    fun verifyPayment(payment: PaidPayment): Boolean =
+        payment.customData?.let { customData ->
+            items[json.decodeFromString<PaymentCustomData>(customData).item]?.let {
                 payment.orderName == it.name &&
                     payment.amount.total == it.price.toLong() &&
-                    payment.currency == it.currency
+                    payment.currency.value == it.currency
             }
         } == true
 }

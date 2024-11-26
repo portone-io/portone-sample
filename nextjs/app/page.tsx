@@ -1,13 +1,13 @@
-import * as PortOne from "@portone/server-sdk"
+import { GetPaymentError, PaidPayment, PaymentClient, PaymentStatus } from "@portone/server-sdk/payment"
 import PaymentForm, { Item } from "./ui/payment-form"
 
-const portOne = PortOne.PortOneClient(process.env.V2_API_SECRET)
+const portone = PaymentClient({ secret: process.env.V2_API_SECRET })
 
 const items = new Map<string, Omit<Item, "id">>([
   [
     "shoes",
     {
-      name: "나이키 멘즈 조이라이드 플라이니트",
+      name: "신발",
       price: 1000,
       currency: "KRW",
     },
@@ -16,7 +16,7 @@ const items = new Map<string, Omit<Item, "id">>([
 
 // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
-function verifyPayment(payment: PortOne.Payment.Payment) {
+function verifyPayment(payment: PaidPayment) {
   if (payment.customData == null) return false
   const customData = JSON.parse(payment.customData)
   const item = items.get(customData.item)
@@ -33,7 +33,7 @@ function verifyPayment(payment: PortOne.Payment.Payment) {
 // 브라우저의 결제 완료 호출과 포트원의 웹훅 호출 두 경우에 모두 상태 동기화가 필요합니다.
 // 실제 데이터베이스 사용시에는 결제건 단위 락을 잡아 동시성 문제를 피하도록 합니다.
 type Payment = {
-  status: PortOne.Payment.PaymentStatus
+  status: PaymentStatus
 }
 const paymentStore = new Map<string, Payment>()
 async function syncPayment(paymentId: string) {
@@ -43,14 +43,13 @@ async function syncPayment(paymentId: string) {
     })
   }
   const payment = paymentStore.get(paymentId)!
-  let actualPayment: PortOne.Payment.Payment | null
+  let actualPayment
   try {
-    actualPayment = await portOne.payment.getPayment(paymentId)
+    actualPayment = await portone.getPayment({ paymentId })
   } catch (e) {
-    if (e instanceof PortOne.Errors.PortOneError) return false
+    if (e instanceof GetPaymentError) return false
     throw e
   }
-  if (actualPayment == null) return false
   switch (actualPayment.status) {
     case "PAID":
       if (!verifyPayment(actualPayment)) return false

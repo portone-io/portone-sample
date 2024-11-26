@@ -2,14 +2,15 @@ package org.example;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.portone.sdk.server.PortOneClient;
 import io.portone.sdk.server.common.Currency;
 import io.portone.sdk.server.payment.PaidPayment;
+import io.portone.sdk.server.payment.PaymentClient;
 import io.portone.sdk.server.payment.VirtualAccountIssuedPayment;
+import io.portone.sdk.server.webhook.Webhook;
+import io.portone.sdk.server.webhook.WebhookTransaction;
 import io.portone.sdk.server.webhook.WebhookVerifier;
 import kotlin.Unit;
 import org.example.request.CompletePaymentRequest;
-import org.example.request.WebhookRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,19 +25,19 @@ import java.util.Map;
 
 @RestController
 public final class PaymentController {
-    private static final Map<String, Item> items = Map.of("shoes", new Item("shoes", "나이키 멘즈 조이라이드 플라이니트", 1000, Currency.KRW));
+    private static final Map<String, Item> items = Map.of("shoes", new Item("shoes", "신발", 1000, Currency.Krw.INSTANCE.getValue()));
 
     private static final Map<String, Payment> paymentStore = new HashMap<>();
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     private final PortOneSecretProperties secret;
-    private final PortOneClient portone;
+    private final PaymentClient portone;
     private final WebhookVerifier portoneWebhook;
 
     public PaymentController(PortOneSecretProperties secret) {
         this.secret = secret;
-        portone = new PortOneClient(secret.api(), null, "https://api.portone.io");
+        portone = new PaymentClient(secret.api(), "https://api.portone.io", null);
         portoneWebhook = new WebhookVerifier(secret.webhook());
     }
 
@@ -71,16 +72,16 @@ public final class PaymentController {
             @RequestHeader("webhook-timestamp") String webhookTimestamp,
             @RequestHeader("webhook-signature") String webhookSignature
             ) throws SyncPaymentException {
-        WebhookRequest webhook;
+        Webhook webhook;
         try {
-            portoneWebhook.verify(body, webhookId, webhookTimestamp, webhookSignature);
-            webhook = objectMapper.readValue(body, WebhookRequest.class);
+            webhook = portoneWebhook.verify(body, webhookId, webhookTimestamp, webhookSignature);
         } catch (Exception e) {
             throw new SyncPaymentException();
         }
-        if (webhook.type.startsWith("Transaction.")) {
-            return syncPayment(webhook.data.paymentId).map(payment -> Unit.INSTANCE);
+        if (webhook instanceof WebhookTransaction transaction) {
+            return syncPayment(transaction.getData().getPaymentId()).map(payment -> Unit.INSTANCE);
         }
+        return Mono.empty();
     }
 
     // 서버의 결제 데이터베이스를 따라하는 샘플입니다.
@@ -93,32 +94,34 @@ public final class PaymentController {
             payment = new Payment("PENDING");
             paymentStore.put(paymentId, payment);
         }
-        io.portone.sdk.server.payment.Payment actualPayment;
-        try {
-            actualPayment = Mono.fromFuture(portone.getPayment().getPayment(paymentId));
-        } catch (Exception ignored) {
-            throw new SyncPaymentException();
-        }
-        if (actualPayment instanceof PaidPayment) {
-            if (!verifyPayment(actualPayment)) throw SyncPaymentException()
-            logger.info("결제 성공 {}", actualPayment)
-            if (payment.status == "PAID") {
-                payment
-            } else {
-                payment.copy(status = "PAID").also {
-                    paymentStore.put(paymentId, it)
-                }
-            }
-        } else if (actualPayment instanceof VirtualAccountIssuedPayment) {
-            payment.copy(status = "VIRTUAL_ACCOUNT_ISSUED").also {
-                paymentStore.put(paymentId, it)
-            }
-        }
+        Payment finalPayment = payment;
+        return Mono.fromFuture(portone.getPayment(paymentId))
+                .onErrorMap(ignored -> new SyncPaymentException())
+                .flatMap(actualPayment -> {
+                    switch (actualPayment) {
+                        case PaidPayment paidPayment:
+                            if (!verifyPayment(paidPayment)) return Mono.error(new SyncPaymentException());
+                            logger.info("결제 성공 {}", actualPayment);
+                            if (finalPayment.status().equals("PAID")) {
+                                return Mono.just(finalPayment);
+                            } else {
+                                Payment newPayment = new Payment("PAID");
+                                paymentStore.put(paymentId, newPayment);
+                                return Mono.just(newPayment);
+                            }
+                        case VirtualAccountIssuedPayment ignored:
+                            Payment newPayment = new Payment("VIRTUAL_ACCOUNT_ISSUED");
+                            paymentStore.put(paymentId, newPayment);
+                            return Mono.just(newPayment);
+                        default:
+                            return Mono.just(finalPayment);
+                    }
+                });
     }
 
     // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
-    public boolean verifyPayment(io.portone.sdk.server.payment.Payment payment) {
+    public boolean verifyPayment(PaidPayment payment) {
         var customData = payment.getCustomData();
         if (customData == null) return false;
 
@@ -134,6 +137,6 @@ public final class PaymentController {
 
         return payment.getOrderName().equals(item.name()) &&
                 payment.getAmount().getTotal() == item.price() &&
-                payment.getCurrency() == item.currency();
+                payment.getCurrency().getValue().equals(item.currency());
     }
 }

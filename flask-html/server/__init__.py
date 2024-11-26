@@ -29,7 +29,7 @@ def create_app():
     def index():
         return app.send_static_file("index.html")
 
-    items = {item.id: item for item in [Item("shoes", "나이키 멘즈 조이라이드 플라이니트", 1000, "KRW")]}
+    items = {item.id: item for item in [Item("shoes", "신발", 1000, "KRW")]}
     portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
 
     # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
@@ -54,19 +54,17 @@ def create_app():
             payment_store[payment_id] = Payment("PENDING")
         payment = payment_store[payment_id]
         try:
-            actual_payment = portone_client.payment.get_payment(payment_id=payment_id)
-        except portone.errors.PortOneError:
+            actual_payment = portone_client.get_payment(payment_id=payment_id)
+        except portone.payment.GetPaymentError:
             return None
-        if actual_payment is None:
-            return None
-        if actual_payment.status == "PAID":
+        if isinstance(actual_payment, portone.payment.PaidPayment):
             if not verify_payment(actual_payment):
                 return None
             if payment.status == "PAID":
                 return payment
             payment.status = "PAID"
             app.logger.info("결제 성공", extra={"actual_payment": actual_payment})
-        elif actual_payment.status == "VIRTUAL_ACCOUNT_ISSUED":
+        elif isinstance(actual_payment, portone.payment.VirtualAccountIssuedPayment):
             payment.status = "VIRTUAL_ACCOUNT_ISSUED"
         else:
             return None
@@ -89,16 +87,17 @@ def create_app():
     @app.post("/api/payment/webhook")
     def receive_webhook():
         try:
-            portone.webhook.verify(
+            webhook = portone.webhook.verify(
                 os.environ["V2_WEBHOOK_SECRET"],
                 request.get_data(as_text=True),
                 request.headers,
             )
-        except portone.webhook.WebhookNotFoundError:
+        except portone.webhook.WebhookVerificationError:
             return "Bad Request", 400
-        type = request.json.get("type", None)
-        if isinstance(type, str) and type.startswith("Transaction."):
-            sync_payment(request.json["data"]["paymentId"])
+        if not isinstance(webhook, dict) and isinstance(
+            webhook.data, portone.webhook.WebhookTransactionData
+        ):
+            sync_payment(webhook.data.payment_id)
         return "OK", 200
 
     return app

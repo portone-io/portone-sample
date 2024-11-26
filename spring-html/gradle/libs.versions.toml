@@ -2,7 +2,7 @@
 kotlin = "2.0.21"
 ktlint = "12.1.1"
 spring-boot = "3.3.5"
-portone-server-sdk = "0.7.0"
+portone-server-sdk = "0.9.1"
 kotlinx-serialization-json = "1.7.3"
 kotlinx-coroutines = "1.9.0"
 

@@ -24,7 +24,7 @@ class PaymentController(private val secret: PortOneSecretProperties) {
                 "shoes" to
                     Item(
                         id = "shoes",
-                        name = "나이키 멘즈 조이라이드 플라이니트",
+                        name = "신발",
                         price = 1000,
                         currency = Currency.KRW,
                     ),

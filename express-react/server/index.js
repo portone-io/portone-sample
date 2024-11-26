@@ -1,8 +1,12 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const PortOne = require("@portone/server-sdk")
+const {
+  PaymentClient,
+  GetPaymentError,
+} = require("@portone/server-sdk/payment")
 
-const portOne = PortOne.PortOneClient(process.env.V2_API_SECRET)
+const portone = PaymentClient({ secret: process.env.V2_API_SECRET })
 
 // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
@@ -32,12 +36,11 @@ async function syncPayment(paymentId) {
   const payment = paymentStore.get(paymentId)
   let actualPayment
   try {
-    actualPayment = await portOne.payment.getPayment(paymentId)
+    actualPayment = await portone.getPayment({ paymentId })
   } catch (e) {
-    if (e instanceof PortOne.Errors.PortOneError) return false
+    if (e instanceof GetPaymentError) return false
     throw e
   }
-  if (actualPayment == null) return false
   switch (actualPayment.status) {
     case "PAID":
       if (!verifyPayment(actualPayment)) return false
@@ -69,7 +72,7 @@ const items = new Map([
   [
     "shoes",
     {
-      name: "나이키 멘즈 조이라이드 플라이니트",
+      name: "신발",
       price: 1000,
       currency: "KRW",
     },

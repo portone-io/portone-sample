@@ -84,7 +84,6 @@
         this.showCheckout = async () => {
           window.itemName.replaceChildren(item.name)
           window.itemImage.src = `/${item.id}.png`
-          console.log(document.querySelectorAll(".price-value"))
           for (const priceElement of document.querySelectorAll(
             ".price-value",
           )) {

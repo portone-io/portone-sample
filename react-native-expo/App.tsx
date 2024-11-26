@@ -1,6 +1,6 @@
 import { Payment, PortOneController } from "@portone/react-native-sdk"
 import { createRef, useEffect } from "react"
-import { BackHandler, View } from "react-native"
+import { Alert, BackHandler, SafeAreaView } from "react-native"
 
 export default function App() {
   const controller = createRef<PortOneController>()
@@ -20,21 +20,24 @@ export default function App() {
   })
   const uid = Date.now().toString(16)
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <Payment
         ref={controller}
         request={{
-          storeId: "store-00000000-0000-0000-0000-000000000000",
-          channelKey: "channel-key-00000000-0000-0000-0000-000000000000",
+          storeId: "store-e2ecb885-55db-46fa-9e30-df17e0ddab2a",
+          channelKey: "channel-key-f2ef69ca-de05-4dc5-ae63-ac72a9723e0e",
           paymentId: uid,
           orderName: "주문명",
           totalAmount: 1000,
           currency: "CURRENCY_KRW",
           payMethod: "CARD",
+          customer: {
+            fullName: "김",
+          },
         }}
-        onError={(error) => alert(error.message)}
-        onComplete={(complete) => alert(JSON.stringify(complete))}
+        onError={(error) => Alert.alert("실패", error.message)}
+        onComplete={(complete) => Alert.alert("완료", JSON.stringify(complete))}
       />
-    </View>
+    </SafeAreaView>
   )
 }
