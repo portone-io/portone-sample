@@ -8,7 +8,7 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@portone/react-native-sdk": "^0.3.3",
+    "@portone/react-native-sdk": "^0.3.4",
     "expo": "^52.0.11",
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",

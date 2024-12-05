@@ -1770,16 +1770,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@portone/react-native-sdk@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "@portone/react-native-sdk@npm:0.3.2"
+"@portone/react-native-sdk@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "@portone/react-native-sdk@npm:0.3.4"
   peerDependencies:
     "@portone/browser-sdk": "*"
     expo: "*"
     react: "*"
     react-native: "*"
     react-native-webview: "*"
-  checksum: 10c0/1f5be3cfd388236851783a8cfbb57cc2966dc76dd255ce2b4fe325bbba785e8fc007487cb65c0bc8aa379780de017dd6825010f5e850fe97b8f090d980f689d9
+  checksum: 10c0/8c48541bce515c6bcff34d08504899a53da54e0ea46cca4af6e4ce95e4732ccaa13996496b8c3f1bc303e3ed0ec25e835f442e35aa5394b4990d067a4e1a91b9
   languageName: node
   linkType: hard
 
@@ -6233,7 +6233,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.26.0"
     "@portone/browser-sdk": "npm:^0.0.11"
-    "@portone/react-native-sdk": "npm:^0.3.2"
+    "@portone/react-native-sdk": "npm:^0.3.4"
     "@types/react": "npm:~18.3.12"
     expo: "npm:^52.0.11"
     expo-status-bar: "npm:~2.0.0"
