@@ -74,7 +74,7 @@ public final class PaymentController {
             ) throws SyncPaymentException {
         Webhook webhook;
         try {
-            webhook = portoneWebhook.verify(body, webhookId, webhookTimestamp, webhookSignature);
+            webhook = portoneWebhook.verify(body, webhookId, webhookSignature, webhookTimestamp);
         } catch (Exception e) {
             throw new SyncPaymentException();
         }
