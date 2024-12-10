@@ -69,7 +69,7 @@ class PaymentController(private val secret: PortOneSecretProperties) {
     ) {
         val webhook =
             try {
-                portoneWebhook.verify(body, webhookId, webhookTimestamp, webhookSignature)
+                portoneWebhook.verify(body, webhookId, webhookSignature, webhookTimestamp)
                 json.decodeFromString<WebhookRequest>(body)
             } catch (_: Exception) {
                 throw SyncPaymentException()
