@@ -30,7 +30,7 @@ def create_app():
         return app.send_static_file("index.html")
 
     items = {item.id: item for item in [Item("shoes", "신발", 1000, "KRW")]}
-    portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
+    portone_client = portone.PaymentClient(secret=os.environ["V2_API_SECRET"])
 
     # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     # 포트원의 custom_data 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.

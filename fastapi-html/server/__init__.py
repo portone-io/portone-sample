@@ -26,7 +26,7 @@ load_dotenv()
 app = FastAPI()
 
 items = {item.id: item for item in [Item("shoes", "신발", 1000, "KRW")]}
-portone_client = portone.PortOneClient(secret=os.environ["V2_API_SECRET"])
+portone_client = portone.PaymentClient(secret=os.environ["V2_API_SECRET"])
 
 
 # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
