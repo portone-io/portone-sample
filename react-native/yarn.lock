@@ -2021,16 +2021,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@portone/react-native-sdk@npm:^0.3.5":
-  version: 0.3.5
-  resolution: "@portone/react-native-sdk@npm:0.3.5"
+"@portone/react-native-sdk@npm:^0.4.0-alpha.1":
+  version: 0.4.0-alpha.1
+  resolution: "@portone/react-native-sdk@npm:0.4.0-alpha.1"
   peerDependencies:
     "@portone/browser-sdk": "*"
     expo: "*"
     react: "*"
     react-native: "*"
     react-native-webview: "*"
-  checksum: 10c0/95231aa15ee4cb473b130b739f4fc69e4478e8b35954c8ee83f0ebb24aeab56023325592eb9e453bf4e24f19f89fd6b53c92d98251f4a4971c5cad646604b39a
+  checksum: 10c0/2bcc4c92e3238a8ac4ce092a01f7fb72119212a5aa86a85638b6a1f22da427d7ed5e10f581c675e37cb5e44363273b70f80aa068cd263417cc1c673086539975
   languageName: node
   linkType: hard
 
@@ -7619,7 +7619,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@portone/browser-sdk": "npm:^0.0.11"
-    "@portone/react-native-sdk": "npm:^0.3.5"
+    "@portone/react-native-sdk": "npm:^0.4.0-alpha.1"
     "@react-native-community/cli": "npm:15.0.1"
     "@react-native-community/cli-platform-android": "npm:15.0.1"
     "@react-native-community/cli-platform-ios": "npm:15.0.1"
@@ -7810,15 +7810,15 @@ __metadata:
   linkType: hard
 
 "react-native-webview@npm:^13.12.5":
-  version: 13.12.5
-  resolution: "react-native-webview@npm:13.12.5"
+  version: 13.13.1
+  resolution: "react-native-webview@npm:13.13.1"
   dependencies:
     escape-string-regexp: "npm:^4.0.0"
     invariant: "npm:2.2.4"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/c738e622fa29837e0715e0632c8b8dafd3086bcef115353b0fab23d94169a789cefa7f7980206278612927f2fe236488eebf34795a6aa49a812a179e36c85d2c
+  checksum: 10c0/2224ca30448b72338906a9b90cc31260f6a6c88bffb02ca5b5a88272a2d115522f8262c260e0dd685126adadcb44068a56ad96c7ab3a4341ac04343013c6e091
   languageName: node
   linkType: hard
 
