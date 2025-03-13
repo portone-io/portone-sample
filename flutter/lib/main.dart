@@ -57,7 +57,8 @@ PortOne.requestPayment({
               );
             });
       })
-      ..setNavigationDelegate(NavigationDelegate(onNavigationRequest: (NavigationRequest request) {
+      ..setNavigationDelegate(
+          NavigationDelegate(onNavigationRequest: (NavigationRequest request) {
         var colon = request.url.indexOf(':');
         var protocol = request.url.substring(0, colon);
         switch (protocol) {
@@ -89,7 +90,8 @@ PortOne.requestPayment({
             return NavigationDecision.prevent;
         }
       }))
-      ..loadHtmlString(request, 'https://flutter-sample-content.portone.io/');
+      ..loadHtmlString(request,
+          baseUrl: 'https://flutter-sample-content.portone.io/');
 
     return Scaffold(
       body: PopScope(
