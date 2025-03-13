@@ -14,6 +14,12 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     var paymentId = 'payment${DateTime.timestamp().second}';
     var request = '''
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+<script>
 PortOne.requestPayment({
   storeId: 'store-00000000-0000-0000-0000-000000000000',
   paymentId: '$paymentId',
@@ -23,7 +29,10 @@ PortOne.requestPayment({
   channelKey: 'channel-key-00000000-0000-0000-0000-000000000000',
   payMethod: 'CARD',
   redirectUrl: 'portone://complete',
-})
+}).catch((err) => webviewChannel.postMessage(err.message))
+</script>
+</head>
+</html>
 ''';
 
     var controller = WebViewController();
@@ -48,16 +57,10 @@ PortOne.requestPayment({
               );
             });
       })
-      ..setNavigationDelegate(NavigationDelegate(onPageFinished: (String url) {
-        if (url.startsWith('file:')) {
-          controller.runJavaScript(
-              '$request.catch((err) => webviewChannel.postMessage(err.message));');
-        }
-      }, onNavigationRequest: (NavigationRequest request) {
+      ..setNavigationDelegate(NavigationDelegate(onNavigationRequest: (NavigationRequest request) {
         var colon = request.url.indexOf(':');
         var protocol = request.url.substring(0, colon);
         switch (protocol) {
-          case 'file':
           case 'http':
           case 'https':
             return NavigationDecision.navigate;
@@ -86,7 +89,7 @@ PortOne.requestPayment({
             return NavigationDecision.prevent;
         }
       }))
-      ..loadFlutterAsset('assets/delegate.html');
+      ..loadHtmlString(request, 'https://flutter-sample-content.portone.io/');
 
     return Scaffold(
       body: PopScope(
