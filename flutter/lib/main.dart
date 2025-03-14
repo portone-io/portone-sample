@@ -12,7 +12,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var paymentId = 'payment${DateTime.timestamp().second}';
+    var paymentId = 'payment${DateTime.now().millisecondsSinceEpoch}';
     var request = '''
 <!doctype html>
 <html>
@@ -82,7 +82,7 @@ PortOne.requestPayment({
                   break;
               }
             }
-            var redirect = '$scheme${request.url.substring(colon)}';
+            var redirect = '$scheme${request.url.substring(colon, firstHash)}';
             launchUrlString(redirect);
             return NavigationDecision.prevent;
           default:
