@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- inappwebview 사용 시 필요 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <meta-data
+        android:name="flutterEmbedding"
+        android:value="2" />
     <application
         android:label="portone_sample"
         android:name="${applicationName}"
