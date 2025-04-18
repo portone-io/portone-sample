@@ -133,7 +133,7 @@ class MainApp extends StatelessWidget {
                         break;
                     }
                   }
-                  var redirect = '$scheme${uri.substring(colon, firstHash)}';
+                  var redirect = '${scheme != null ? '${scheme}:' : ''}${uri.substring(colon + 1, firstHash)}';
                   if (await canLaunchUrlString(redirect)) {
                     launchUrlString(redirect);
                   }
