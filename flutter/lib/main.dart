@@ -26,12 +26,12 @@ class MainApp extends StatelessWidget {
 <script>
   window.addEventListener("flutterInAppWebViewPlatformReady", () => {
     PortOne.requestPayment({
-      storeId: "store-00000000-0000-0000-0000-000000000000",
+      storeId: "store-8d090a12-09b3-4220-8da2-9315e9f47956",
       paymentId: "$paymentId",
       orderName: "주문명",
       totalAmount: 1000,
       currency: "KRW",
-      channelKey: "channel-key-00000000-0000-0000-0000-000000000000",
+      channelKey: "channel-key-64979111-ecd7-4d44-9ba1-093c1de1b8ca",
       payMethod: "CARD",
       redirectUrl: "portone://complete",
     }).catch((err) => window.flutter_inappwebview.callHandler("portoneError", err.message));
@@ -42,6 +42,7 @@ class MainApp extends StatelessWidget {
 ''';
 
     late InAppWebViewController? controller;
+    var logs = <String>[];
 
     return Scaffold(
       body: PopScope(
@@ -58,7 +59,17 @@ class MainApp extends StatelessWidget {
           }
         },
         child: SafeArea(
-          child: InAppWebView(
+          child: Stack(
+              children: <Widget>[
+                MaterialButton(onPressed: () async {
+                  await showDialog(context: context, builder: (builder) {
+                    return AlertDialog(
+                      title: Text("로그"),
+                      content: Text(logs.join("\n")),
+                    );
+                  });
+                }),
+            InAppWebView(
             initialSettings: InAppWebViewSettings(
               useShouldOverrideUrlLoading: true,
               resourceCustomSchemes: ["intent"],
@@ -97,6 +108,7 @@ class MainApp extends StatelessWidget {
             },
             shouldOverrideUrlLoading: (controller, navigateAction) async {
               final uri = navigateAction.request.url!.rawValue;
+              logs.add("url in shouldOverrideUrlLoading: $uri");
               var colon = uri.indexOf(':');
               var protocol = uri.substring(0, colon);
               switch (protocol) {
@@ -134,7 +146,13 @@ class MainApp extends StatelessWidget {
                     }
                   }
                   var redirect = '${scheme != null ? '${scheme}:' : ''}${uri.substring(colon + 1, firstHash)}';
-                  if (await canLaunchUrlString(redirect)) {
+                  logs.add("redirect when intent case: $uri");
+
+                  var canLaunch = await canLaunchUrlString(redirect);
+
+                  logs.add("canLaunch: $canLaunch");
+
+                  if (canLaunch) {
                     launchUrlString(redirect);
                   }
                   return NavigationActionPolicy.CANCEL;
@@ -146,6 +164,7 @@ class MainApp extends StatelessWidget {
               }
             },
           ),
+        ])
         ),
       ),
     );
