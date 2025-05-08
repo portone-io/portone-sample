@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -59,112 +60,141 @@ class MainApp extends StatelessWidget {
           }
         },
         child: SafeArea(
-          child: Stack(
-              children: <Widget>[
-                MaterialButton(onPressed: () async {
-                  await showDialog(context: context, builder: (builder) {
-                    return AlertDialog(
-                      title: Text("로그"),
-                      content: Text(logs.join("\n")),
-                    );
-                  });
-                }),
-            InAppWebView(
-            initialSettings: InAppWebViewSettings(
-              useShouldOverrideUrlLoading: true,
-              resourceCustomSchemes: ["intent"],
-            ),
-            onWebViewCreated: (created) {
-              controller = created;
-              controller?.addJavaScriptHandler(
-                  handlerName: "portoneError",
-                  callback: (data) {
-                    showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("결제 호출 실패"),
-                            content: Text(data[0]),
-                            actions: <Widget>[
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('확인'))
-                            ],
-                          );
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('로그 출력'),
+                  onPressed: () async {
+                    await showDialog(context: context, builder: (builder) {
+                      return AlertDialog(
+                        title: Text("로그"),
+                        content: Text(logs.join("\n\n")),
+                        scrollable: true,
+                      );
+                    });
+                  }
+                ),
+              ),
+
+              Expanded(
+                child: InAppWebView(
+                  initialSettings: InAppWebViewSettings(
+                    useShouldOverrideUrlLoading: true,
+                    resourceCustomSchemes: ["intent"],
+                  ),
+                  onWebViewCreated: (created) {
+                    logs.add("webview created");
+
+                    controller = created;
+                    controller?.addJavaScriptHandler(
+                        handlerName: "portoneError",
+                        callback: (data) {
+                          showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("결제 호출 실패"),
+                                  content: Text(data[0]),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('확인'))
+                                  ],
+                                );
+                              });
                         });
-                  });
-              controller?.loadData(
-                  data: html,
-                  baseUrl:
-                      WebUri('https://flutter-sample-content.portone.io/'));
-            },
-            // 안드로이드에서 intent:// URL로 이동 시 오류가 아닌 빈 페이지 표시
-            onLoadResourceWithCustomScheme: (controller, resource) async {
-              return CustomSchemeResponse(
-                  contentType: "text/html", data: Uint8List(0));
-            },
-            shouldOverrideUrlLoading: (controller, navigateAction) async {
-              final uri = navigateAction.request.url!.rawValue;
-              logs.add("url in shouldOverrideUrlLoading: $uri");
-              var colon = uri.indexOf(':');
-              var protocol = uri.substring(0, colon);
-              switch (protocol) {
-                case 'http':
-                case 'https':
-                  return NavigationActionPolicy.ALLOW;
-                case 'portone':
-                  showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("결제 결과"),
-                          content: Text(json.encode(
-                              navigateAction.request.url!.queryParameters)),
-                          actions: <Widget>[
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('확인'))
-                          ],
-                        );
-                      });
-                  return NavigationActionPolicy.CANCEL;
-                case 'intent':
-                  var firstHash = uri.indexOf('#');
-                  String? scheme;
-                  for (var param in uri.substring(firstHash + 1).split(';')) {
-                    var keyValue = param.split('=');
-                    switch (keyValue.elementAtOrNull(0)) {
-                      case 'scheme':
-                        scheme = keyValue[1];
-                        break;
+                    controller?.loadData(
+                        data: html,
+                        baseUrl:
+                        WebUri('https://flutter-sample-content.portone.io/'));
+                  },
+                  // 안드로이드에서 intent:// URL로 이동 시 오류가 아닌 빈 페이지 표시
+                  onLoadResourceWithCustomScheme: (controller, resource) async {
+                    await controller.stopLoading();
+                    return null;
+                    // logs.add("onLoadResourceWithCustomScheme");
+                    //
+                    // return CustomSchemeResponse(
+                    //     contentType: "text/html", data: Uint8List(0));
+                  },
+                  shouldOverrideUrlLoading: (controller, navigateAction) async {
+                    final url = navigateAction.request.url!;
+                    final uri = navigateAction.request.url!.rawValue;
+                    logs.add("url in shouldOverrideUrlLoading: $uri");
+                    var colon = uri.indexOf(':');
+                    var protocol = uri.substring(0, colon);
+                    switch (protocol) {
+                      case 'http':
+                      case 'https':
+                        return NavigationActionPolicy.ALLOW;
+                      case 'portone':
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("결제 결과"),
+                                content: Text(json.encode(
+                                    navigateAction.request.url!.queryParameters)),
+                                actions: <Widget>[
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('확인'))
+                                ],
+                              );
+                            });
+                        return NavigationActionPolicy.CANCEL;
+                      case 'intent':
+                        // try {
+                        //   await AndroidIntent(
+                        //     action: 'action_view',
+                        //     data: uri.toString(),
+                        //   ).launch();
+                        // } catch (e) {
+                        //   logs.add("android intent fail: $e");
+
+                          var firstHash = uri.indexOf('#');
+                          String? scheme;
+                          for (var param in uri.substring(firstHash + 1).split(';')) {
+                            var keyValue = param.split('=');
+                            switch (keyValue.elementAtOrNull(0)) {
+                              case 'scheme':
+                                scheme = keyValue[1];
+                                break;
+                            }
+                          }
+                          var redirect = '${scheme != null ? '${scheme}:' : ''}${uri.substring(colon + 1, firstHash)}';
+                          logs.add("redirect when intent case: $redirect");
+
+                          var canLaunch = await canLaunchUrlString(redirect);
+
+                          logs.add("canLaunch: $canLaunch");
+
+                          if (canLaunch) {
+                            launchUrlString(redirect);
+                          }
+                        // }
+
+                        return NavigationActionPolicy.CANCEL;
+                      default:
+                        if (await canLaunchUrlString(uri)) {
+                          launchUrlString(uri);
+                        }
+                        return NavigationActionPolicy.CANCEL;
                     }
-                  }
-                  var redirect = '${scheme != null ? '${scheme}:' : ''}${uri.substring(colon + 1, firstHash)}';
-                  logs.add("redirect when intent case: $uri");
-
-                  var canLaunch = await canLaunchUrlString(redirect);
-
-                  logs.add("canLaunch: $canLaunch");
-
-                  if (canLaunch) {
-                    launchUrlString(redirect);
-                  }
-                  return NavigationActionPolicy.CANCEL;
-                default:
-                  if (await canLaunchUrlString(uri)) {
-                    launchUrlString(uri);
-                  }
-                  return NavigationActionPolicy.CANCEL;
-              }
-            },
-          ),
-        ])
+                  },
+                ),
+              )
+            ],
+          )
         ),
       ),
     );
