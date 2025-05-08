@@ -92,8 +92,8 @@ class MainApp extends StatelessWidget {
             },
             // 안드로이드에서 intent:// URL로 이동 시 오류가 아닌 빈 페이지 표시
             onLoadResourceWithCustomScheme: (controller, resource) async {
-              return CustomSchemeResponse(
-                  contentType: "text/html", data: Uint8List(0));
+              await controller.stopLoading();
+              return null;
             },
             shouldOverrideUrlLoading: (controller, navigateAction) async {
               final uri = navigateAction.request.url!.rawValue;
