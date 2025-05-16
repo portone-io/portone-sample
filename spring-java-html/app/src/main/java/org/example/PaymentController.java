@@ -122,6 +122,9 @@ public final class PaymentController {
     // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
     public boolean verifyPayment(PaidPayment payment) {
+        // 실연동 시에 테스트 채널키로 변조되어 결제되지 않도록 검증해야 합니다.
+        // if (!payment.getChannel().getType().equals(SelectedChannelType.Live.INSTANCE)) return false;
+        
         var customData = payment.getCustomData();
         if (customData == null) return false;
 

@@ -115,12 +115,15 @@ class PaymentController(secret: PortOneSecretProperties) {
 
     // 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
     // 포트원의 customData 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
-    fun verifyPayment(payment: PaidPayment): Boolean =
-        payment.customData?.let { customData ->
+    fun verifyPayment(payment: PaidPayment): Boolean {
+        // 실연동 시에 테스트 채널키로 변조되어 결제되지 않도록 검증해야 합니다.
+        // if (payment.channel.type != SelectedChannelType.Live) return false
+        return payment.customData?.let { customData ->
             items[json.decodeFromString<PaymentCustomData>(customData).item]?.let {
                 payment.orderName == it.name &&
                     payment.amount.total == it.price.toLong() &&
                     payment.currency.value == it.currency
             }
         } == true
+    }
 }

@@ -32,6 +32,9 @@ portone_client = portone.PaymentClient(secret=os.environ["V2_API_SECRET"])
 # 결제는 브라우저에서 진행되기 때문에, 결제 승인 정보와 결제 항목이 일치하는지 확인해야 합니다.
 # 포트원의 custom_data 파라미터에 결제 항목의 id인 item 필드를 지정하고, 서버의 결제 항목 정보와 일치하는지 확인합니다.
 def verify_payment(payment):
+    # 실연동 시에 테스트 채널키로 변조되어 결제되지 않도록 검증해야 합니다.
+    # if payment.channel.type != "LIVE":
+    #     return False
     if payment.custom_data is None:
         return False
     custom_data = json.loads(payment.custom_data)
