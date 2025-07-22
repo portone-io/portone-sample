@@ -11,6 +11,7 @@
 - [Flask + React](/flask-react)
 - [Spring Boot + HTML](/spring-html)
 - [Spring Boot + React](/spring-react)
+- [Ruby on Rails + HTML](/ruby-on-rails-html)
 - [iOS](/ios)
 - [UIkit](/ios-uikit)
 - [React Native](/react-native)

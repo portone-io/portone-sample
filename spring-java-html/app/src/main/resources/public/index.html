@@ -37,7 +37,7 @@
         <header>
           <h1>결제 실패</h1>
         </header>
-        <p />
+        <p id="failMessage"></p>
         <button type="button" class="closeDialog">닫기</button>
       </dialog>
       <dialog id="successDialog">
@@ -138,7 +138,7 @@
             "closeDialog",
           )) {
             dialogButton.onclick = () => {
-              dialogButton.parentElement.parentElement.open = false
+              dialogButton.closest('dialog').open = false
             }
           }
           window.checkoutDialog.style = ""
