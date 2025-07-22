@@ -46,3 +46,18 @@ const checkout = new Checkout(
 $ bundle install # 의존성 다운로드
 $ rails server   # 프로젝트 실행
 ```
+
+## 주요 파일
+
+결제 연동을 이해하기 위해 다음 파일들을 중점적으로 확인하세요:
+
+### 프론트엔드
+- `public/index.html` - 결제 UI 및 PortOne SDK 연동
+
+### 백엔드
+- `app/controllers/payment_controller.rb` - 결제 관련 API 엔드포인트
+  - `/api/item` - 상품 정보 조회
+  - `/api/payment/complete` - 결제 완료 처리
+  - `/api/payment/webhook` - 웹훅 수신 처리
+- `app/lib/portone_webhook_verifier.rb` - 웹훅 서명 검증
+- `config/routes.rb` - API 라우팅 설정
