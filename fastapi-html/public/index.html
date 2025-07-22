@@ -109,6 +109,7 @@
               this.setWaitingPayment(false)
               console.log(payment)
               this.openFailDialog(payment.message)
+              return
             }
             const completeResponse = await fetch("/api/payment/complete", {
               method: "POST",
