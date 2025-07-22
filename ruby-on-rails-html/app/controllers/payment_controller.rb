@@ -79,7 +79,7 @@ class PaymentController < ApplicationController
     
     # Get payment from PortOne API
     api_secret = Rails.application.credentials.dig(:portone, :api_secret)
-    actual_payment = get_payment_from_portone(payment_id, api_secret)
+    actual_payment = fetch_payment_from_portone(payment_id, api_secret)
     
     return false unless actual_payment
     
@@ -115,7 +115,7 @@ class PaymentController < ApplicationController
       payment['currency'] == ITEM[:currency]
   end
   
-  def get_payment_from_portone(payment_id, api_secret)
+  def fetch_payment_from_portone(payment_id, api_secret)
     conn = Faraday.new(url: 'https://api.portone.io') do |f|
       f.request :json
       f.response :json
