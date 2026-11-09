@@ -12,15 +12,11 @@ React Native와 Expo를 사용한 샘플 프로젝트입니다.
 
 ## 프로젝트 설정
 
-프로젝트를 실행하기 전 설정이 필요합니다. `App.tsx` 파일을 수정해 주세요.
+`.env` 템플릿을 `.env.local`로 복사한 뒤 상점 ID와 채널 키를 입력합니다.
 
-```jsx
-<Payment
-  request={{
-    storeId: "store-00000000-0000-0000-0000-000000000000", // 상점 ID
-    channelKey: "channel-key-00000000-0000-0000-0000-000000000000", // 채널키
-  }}
-/>
+```bash
+EXPO_PUBLIC_STORE_ID=store-00000000-0000-0000-0000-000000000000 # storeId
+EXPO_PUBLIC_CHANNEL_KEY=channel-key-00000000-0000-0000-0000-000000000000 # channelKey
 ```
 
 ## 프로젝트 실행
