@@ -7,14 +7,10 @@ React Native와 Expo를 사용한 샘플 프로젝트입니다.
 
 ## 사전 준비
 
-샘플 프로젝트는 yarn 4.5.1을 기준으로 작성되었습니다.
+- Node.js 22.23.4+, 24.22.1+, 26.12.1+
+- pnpm 12 (`package.json`의 `packageManager` 참고)
 
-```bash
-$ yarn --version
-4.5.1
-```
-
-## 프로젝트 실행
+## 프로젝트 설정
 
 프로젝트를 실행하기 전 설정이 필요합니다. `App.tsx` 파일을 수정해 주세요.
 
@@ -27,10 +23,10 @@ $ yarn --version
 />
 ```
 
-이후 프로젝트를 실행하면 됩니다.
+## 프로젝트 실행
 
 ```bash
-$ yarn # 의존성 다운로드
-$ yarn android # 안드로이드 에뮬레이터에서 실행
-$ yarn ios # iOS 에뮬레이터에서 실행
+$ pnpm install   # 의존성 다운로드
+$ pnpm android   # 안드로이드 에뮬레이터에서 실행
+$ pnpm ios       # iOS 시뮬레이터에서 실행
 ```

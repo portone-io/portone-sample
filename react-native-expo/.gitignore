@@ -21,8 +21,7 @@ web-build/
 
 # debug
 npm-debug.*
-yarn-debug.*
-yarn-error.*
+pnpm-debug.*
 
 # macOS
 .DS_Store
@@ -34,8 +33,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-.yarn
-.pnp.*
 
 /android
 /ios
