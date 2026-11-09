@@ -7,3 +7,5 @@ trustPolicy: no-downgrade
 blockExoticSubdeps: true
 
 engineStrict: true
+minimumReleaseAgeExclude:
+  - "@portone/react-native-sdk"
