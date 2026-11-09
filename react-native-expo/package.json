@@ -6,7 +6,11 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@portone/react-native-sdk": "^0.7.0",
@@ -21,7 +25,8 @@
   "devDependencies": {
     "@portone/browser-sdk": "^0.1.13",
     "@types/react": "~19.3.0",
-    "prettier": "^3.3.3",
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0",
     "typescript": "~6.0.3"
   },
   "engines": {

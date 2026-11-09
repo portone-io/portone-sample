@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "unicorn", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/exhaustive-deps": "error",
+    "react/rules-of-hooks": "error",
+    "typescript/no-explicit-any": "warn",
+    "react/style-prop-object": [
+      "error",
+      {
+        "allow": ["StatusBar"]
+      }
+    ]
+  },
+  "ignorePatterns": ["android/", "ios/", ".expo/", "dist/"]
+}
