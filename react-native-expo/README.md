@@ -2,6 +2,9 @@
 
 React Native와 Expo를 사용한 샘플 프로젝트입니다.
 
+- Expo SDK 58 / React Native 0.88 / React 19.3
+- [`@portone/react-native-sdk`](https://github.com/portone-io/react-native-sdk)
+
 ## 사전 준비
 
 샘플 프로젝트는 yarn 4.5.1을 기준으로 작성되었습니다.

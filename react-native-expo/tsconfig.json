@@ -1,8 +1,6 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "strict": true
   }
 }
