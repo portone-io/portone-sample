@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@portone/server-sdk": "^0.7.0",
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.4.0",
     "express": "^4.19.2"
   },
   "devDependencies": {
