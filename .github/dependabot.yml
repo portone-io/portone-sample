@@ -1,0 +1,69 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories:
+      - /express-html
+      - /express-react
+      - /fastapi-react
+      - /flask-react
+      - /nextjs
+      - /react-native
+      - /react-native-expo
+      - /spring-react
+    ignore:
+      - dependency-name: '@portone-io/*'
+      - dependency-name: '@portone/*'
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    groups:
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore'
+  - package-ecosystem: docker
+    directory: /ruby-on-rails-html
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    groups:
+      docker-minor-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore'
+  - package-ecosystem: pip
+    directories:
+      - /fastapi-html
+      - /fastapi-react
+      - /flask-html
+      - /flask-react
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    groups:
+      pip-minor-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore'
+  - package-ecosystem: pub
+    directory: /flutter
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    groups:
+      pub-minor-patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: 'chore'
