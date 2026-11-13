@@ -160,7 +160,7 @@ GEM
     matrix (0.4.3)
     mini_mime (1.1.5)
     minitest (5.25.5)
-    msgpack (1.8.0)
+    msgpack (1.8.7)
     net-http (0.6.0)
       uri
     net-imap (0.5.9)
