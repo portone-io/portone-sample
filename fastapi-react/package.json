@@ -24,7 +24,7 @@
     "concurrently": "^8.2.2",
     "dotenv-flow": "^4.1.0",
     "prettier": "^3.3.3",
-    "vite": "^5.4.2"
+    "vite": "^8.3.8"
   },
   "engines": {
     "node": ">=20"
